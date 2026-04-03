@@ -71,7 +71,7 @@ def parse_int_list(text: str | Sequence[int]) -> List[int]:
     return values
 
 
-def infer_class_gesture_ids(data: Dict[str, np.ndarray]) -> np.ndarray:
+def infer_class_gesture_ids(data: Dict[str, np.ndarray], require_contiguous: bool = True) -> np.ndarray:
     class_ids = data["y"].astype(np.int64)
     gesture_ids = data["gesture_id"].astype(np.int64)
 
@@ -84,14 +84,30 @@ def infer_class_gesture_ids(data: Dict[str, np.ndarray]) -> np.ndarray:
             raise ValueError(f"Class {class_id} maps to multiple gestures: {existing} and {gesture_id}")
 
     expected_class_ids = list(range(int(class_ids.max()) + 1))
-    if sorted(mapping.keys()) != expected_class_ids:
-        raise ValueError(
-            f"Class IDs must be contiguous from 0. Found {sorted(mapping.keys())}, expected {expected_class_ids}."
-        )
-    return np.asarray([mapping[class_id] for class_id in expected_class_ids], dtype=np.int64)
+    if require_contiguous:
+        if sorted(mapping.keys()) != expected_class_ids:
+            raise ValueError(
+                f"Class IDs must be contiguous from 0. Found {sorted(mapping.keys())}, expected {expected_class_ids}."
+            )
+        return np.asarray([mapping[class_id] for class_id in expected_class_ids], dtype=np.int64)
+
+    if "class_gesture_ids" in data:
+        stored = data["class_gesture_ids"].astype(np.int64)
+        for class_id, gesture_id in mapping.items():
+            if int(class_id) >= int(stored.shape[0]):
+                raise ValueError(
+                    f"Sparse class ID {class_id} exceeds stored class_gesture_ids length {stored.shape[0]}."
+                )
+            if int(stored[int(class_id)]) != int(gesture_id):
+                raise ValueError(
+                    f"Stored class_gesture_ids[{class_id}]={int(stored[int(class_id)])} does not match inferred gesture {gesture_id}."
+                )
+        return stored
+
+    raise ValueError("Sparse class IDs require stored class_gesture_ids in the dataset.")
 
 
-def load_window_dataset(dataset_path: str) -> Dict[str, np.ndarray]:
+def load_window_dataset(dataset_path: str, allow_sparse_labels: bool = False) -> Dict[str, np.ndarray]:
     loaded = np.load(dataset_path, allow_pickle=False)
     data = {key: loaded[key] for key in loaded.files}
 
@@ -110,9 +126,9 @@ def load_window_dataset(dataset_path: str) -> Dict[str, np.ndarray]:
             )
 
     if "class_gesture_ids" not in data:
-        data["class_gesture_ids"] = infer_class_gesture_ids(data)
+        data["class_gesture_ids"] = infer_class_gesture_ids(data, require_contiguous=not allow_sparse_labels)
     else:
-        inferred = infer_class_gesture_ids(data)
+        inferred = infer_class_gesture_ids(data, require_contiguous=not allow_sparse_labels)
         stored = data["class_gesture_ids"].astype(np.int64)
         if stored.shape != inferred.shape or not np.array_equal(stored, inferred):
             raise ValueError(
