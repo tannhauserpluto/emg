@@ -10,6 +10,7 @@ python build_calibration_dataset.py --dataset data/ninapro_db5/windows/db5_s1-10
 """
 
 import argparse
+import csv
 import json
 
 import numpy as np
@@ -37,6 +38,54 @@ def _distribute_evenly(total_to_select: int, repetition_order: list[int], repeti
             break
 
     return quotas
+
+
+def load_per_class_accuracy(file_path: str) -> list[dict[str, object]]:
+    with open(file_path, "r", encoding="utf-8") as csv_file:
+        reader = csv.DictReader(csv_file)
+        if reader.fieldnames is None:
+            raise ValueError(f"Per-class accuracy file {file_path} is missing a header row.")
+        required_fields = {"gesture_id", "accuracy"}
+        missing_fields = required_fields - set(reader.fieldnames)
+        if missing_fields:
+            raise ValueError(
+                f"Per-class accuracy file {file_path} is missing required columns: {sorted(missing_fields)}"
+            )
+
+        rows: list[dict[str, object]] = []
+        for row in reader:
+            gesture_id = int(row["gesture_id"])
+            accuracy = float(row["accuracy"])
+            support = int(row.get("support", 0))
+            rows.append({"gesture_id": gesture_id, "accuracy": accuracy, "support": support})
+
+    if not rows:
+        raise ValueError(f"Per-class accuracy file {file_path} contains no data rows.")
+
+    rows.sort(key=lambda item: (float(item["accuracy"]), int(item["support"])))
+    return rows
+
+
+def select_worst_gestures(
+    ranking: list[dict[str, object]],
+    worst_k: int,
+    min_accuracy: float | None,
+) -> list[int]:
+    candidates = ranking
+    if min_accuracy is not None:
+        filtered = [row for row in ranking if float(row["accuracy"]) <= float(min_accuracy)]
+        if filtered:
+            candidates = filtered
+        else:
+            print(
+                f"[INFO] No gestures at or below accuracy {min_accuracy:.4f}; falling back to worst-{worst_k}."
+            )
+
+    worst_k = int(worst_k)
+    if worst_k <= 0:
+        raise ValueError(f"auto-select worst_k must be positive, got {worst_k}")
+    worst_k = min(worst_k, len(candidates))
+    return [int(row["gesture_id"]) for row in candidates[:worst_k]]
 
 
 def select_calibration_indices(
@@ -149,8 +198,12 @@ def build_summary(dataset: dict[str, np.ndarray], subject_id: int, gesture_ids: 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build a small target-user calibration subset from a DB5 raw-window dataset.")
     parser.add_argument("--dataset", type=str, required=True, help="Path to a DB5 raw-window dataset .npz")
-    parser.add_argument("--subject-id", type=int, required=True, help="Target user subject ID")
-    parser.add_argument("--gestures", type=str, required=True, help="Subset of gestures, for example 2,7,8,9,10")
+    parser.add_argument("--subject-id", type=int, default=None, help="Target user subject ID")
+    parser.add_argument("--target-subject", type=int, default=None, help="Alias for --subject-id")
+    parser.add_argument("--gestures", type=str, default="", help="Subset of gestures, for example 2,7,8,9,10")
+    parser.add_argument("--baseline-per-class", type=str, default="", help="Baseline per-class accuracy CSV for auto selection")
+    parser.add_argument("--auto-select-worst-k", type=int, default=3, help="Auto-select worst-K gestures when baseline file is provided")
+    parser.add_argument("--min-accuracy", type=float, default=None, help="Optional minimum accuracy threshold for auto selection")
     parser.add_argument("--repetitions", type=str, default="1,3,4", help="Calibration repetitions, default keeps repetition_holdout train reps")
     parser.add_argument("--max-windows-per-gesture", type=int, default=100, help="Limit windows per selected gesture while preserving order")
     parser.add_argument("--out", type=str, default="", help="Output .npz path")
@@ -162,14 +215,29 @@ def main() -> None:
     args = parser.parse_args()
 
     data = load_window_dataset(args.dataset)
+    subject_id = args.subject_id if args.subject_id is not None else args.target_subject
+    if subject_id is None:
+        raise ValueError("You must provide --subject-id or --target-subject.")
+
     gesture_ids = parse_int_list(args.gestures)
     repetition_ids = parse_int_list(args.repetitions)
+    if args.baseline_per_class:
+        ranking = load_per_class_accuracy(args.baseline_per_class)
+        print(f"[INFO] Baseline per-class ranking for subject {int(subject_id)}:")
+        print(json.dumps(ranking, ensure_ascii=False, indent=2))
+        gesture_ids = select_worst_gestures(
+            ranking=ranking,
+            worst_k=int(args.auto_select_worst_k),
+            min_accuracy=args.min_accuracy,
+        )
+        print(f"[INFO] Auto-selected gestures: {gesture_ids}")
+
     if not gesture_ids:
-        raise ValueError("--gestures must not be empty")
+        raise ValueError("--gestures must not be empty when no baseline file is provided.")
 
     selected_indices = select_calibration_indices(
         data=data,
-        subject_id=int(args.subject_id),
+        subject_id=int(subject_id),
         gesture_ids=gesture_ids,
         repetition_ids=repetition_ids,
         max_windows_per_gesture=int(args.max_windows_per_gesture),
@@ -177,18 +245,18 @@ def main() -> None:
     dataset = build_calibration_dataset(data, selected_indices, args.dataset)
 
     discovered_subjects = np.unique(dataset["subject_id"]).astype(np.int64).tolist()
-    if discovered_subjects != [int(args.subject_id)]:
+    if discovered_subjects != [int(subject_id)]:
         raise AssertionError(
-            f"Calibration dataset subjects {discovered_subjects} do not match requested subject {int(args.subject_id)}"
+            f"Calibration dataset subjects {discovered_subjects} do not match requested subject {int(subject_id)}"
         )
 
     output_path = args.out or default_calibration_output_path(
         dataset_path=args.dataset,
-        subject_id=int(args.subject_id),
+        subject_id=int(subject_id),
         gesture_ids=gesture_ids,
         repetition_ids=repetition_ids,
     )
-    summary = build_summary(dataset, int(args.subject_id), gesture_ids, repetition_ids)
+    summary = build_summary(dataset, int(subject_id), gesture_ids, repetition_ids)
     save_subset_dataset(dataset, output_path, summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
