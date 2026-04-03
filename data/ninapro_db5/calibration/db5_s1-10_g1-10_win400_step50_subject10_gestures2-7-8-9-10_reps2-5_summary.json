@@ -24,11 +24,12 @@
     10
   ],
   "repetitions_present": [
-    2
+    2,
+    5
   ],
   "source_indices_range": [
     109429,
-    113377
+    113638
   ],
   "windows_per_gesture": {
     "2": 40,
