@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+artifacts/
+data/ninapro_db5/windows/
+data/ninapro_db5/raw/
+data/ninapro_db5/zip/
+
+*.pt
+*.pth
+*.npz
+*.mat
