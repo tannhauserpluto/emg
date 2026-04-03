@@ -18,6 +18,27 @@ from calibration_utils import default_calibration_output_path, save_subset_datas
 from dl_dataset import load_window_dataset, parse_int_list
 
 
+def _distribute_evenly(total_to_select: int, repetition_order: list[int], repetition_capacities: dict[int, int]) -> dict[int, int]:
+    quotas = {int(repetition_id): 0 for repetition_id in repetition_order}
+    remaining = int(total_to_select)
+
+    while remaining > 0:
+        progressed = False
+        for repetition_id in repetition_order:
+            repetition_id = int(repetition_id)
+            if quotas[repetition_id] >= int(repetition_capacities[repetition_id]):
+                continue
+            quotas[repetition_id] += 1
+            remaining -= 1
+            progressed = True
+            if remaining == 0:
+                break
+        if not progressed:
+            break
+
+    return quotas
+
+
 def select_calibration_indices(
     data: dict[str, np.ndarray],
     subject_id: int,
@@ -40,14 +61,56 @@ def select_calibration_indices(
     if int(max_windows_per_gesture) <= 0:
         return candidate_indices
 
-    gesture_counts = {int(gesture_id): 0 for gesture_id in gesture_ids}
     selected_indices: list[int] = []
-    for index in candidate_indices.tolist():
-        gesture_id = int(data["gesture_id"][int(index)])
-        if gesture_counts[gesture_id] >= int(max_windows_per_gesture):
+    selected_index_set: set[int] = set()
+
+    for gesture_id in gesture_ids:
+        gesture_id = int(gesture_id)
+        gesture_indices = [
+            int(index)
+            for index in candidate_indices.tolist()
+            if int(data["gesture_id"][int(index)]) == gesture_id
+        ]
+        if not gesture_indices:
             continue
-        selected_indices.append(int(index))
-        gesture_counts[gesture_id] += 1
+
+        if repetition_ids:
+            repetition_order = [int(repetition_id) for repetition_id in repetition_ids]
+        else:
+            repetition_order = sorted(
+                {
+                    int(data["repetition_id"][int(index)])
+                    for index in gesture_indices
+                }
+            )
+
+        repetition_to_indices = {
+            int(repetition_id): [
+                int(index)
+                for index in gesture_indices
+                if int(data["repetition_id"][int(index)]) == int(repetition_id)
+            ]
+            for repetition_id in repetition_order
+        }
+        repetition_capacities = {
+            int(repetition_id): int(len(repetition_to_indices[int(repetition_id)]))
+            for repetition_id in repetition_order
+        }
+
+        available_total = int(sum(repetition_capacities.values()))
+        total_to_select = min(int(max_windows_per_gesture), available_total)
+        quotas = _distribute_evenly(total_to_select, repetition_order, repetition_capacities)
+
+        for repetition_id in repetition_order:
+            quota = int(quotas[int(repetition_id)])
+            if quota <= 0:
+                continue
+            selected_index_set.update(repetition_to_indices[int(repetition_id)][:quota])
+
+    for index in candidate_indices.tolist():
+        if int(index) in selected_index_set:
+            selected_indices.append(int(index))
+
     return np.asarray(selected_indices, dtype=np.int64)
 
 
