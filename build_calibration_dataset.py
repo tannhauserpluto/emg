@@ -40,7 +40,7 @@ def _distribute_evenly(total_to_select: int, repetition_order: list[int], repeti
     return quotas
 
 
-def load_per_class_accuracy(file_path: str) -> list[dict[str, object]]:
+def load_per_class_accuracy(file_path: str) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     with open(file_path, "r", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
         if reader.fieldnames is None:
@@ -52,18 +52,23 @@ def load_per_class_accuracy(file_path: str) -> list[dict[str, object]]:
                 f"Per-class accuracy file {file_path} is missing required columns: {sorted(missing_fields)}"
             )
 
-        rows: list[dict[str, object]] = []
+        valid_rows: list[dict[str, object]] = []
+        ignored_rows: list[dict[str, object]] = []
         for row in reader:
             gesture_id = int(row["gesture_id"])
             accuracy = float(row["accuracy"])
             support = int(row.get("support", 0))
-            rows.append({"gesture_id": gesture_id, "accuracy": accuracy, "support": support})
+            record = {"gesture_id": gesture_id, "accuracy": accuracy, "support": support}
+            if support <= 0:
+                ignored_rows.append(record)
+            else:
+                valid_rows.append(record)
 
-    if not rows:
-        raise ValueError(f"Per-class accuracy file {file_path} contains no data rows.")
+    if not valid_rows:
+        raise ValueError(f"Per-class accuracy file {file_path} contains no valid rows with support > 0.")
 
-    rows.sort(key=lambda item: (float(item["accuracy"]), int(item["support"])))
-    return rows
+    valid_rows.sort(key=lambda item: (float(item["accuracy"]), int(item["support"])))
+    return valid_rows, ignored_rows
 
 
 def select_worst_gestures(
@@ -222,9 +227,12 @@ def main() -> None:
     gesture_ids = parse_int_list(args.gestures)
     repetition_ids = parse_int_list(args.repetitions)
     if args.baseline_per_class:
-        ranking = load_per_class_accuracy(args.baseline_per_class)
-        print(f"[INFO] Baseline per-class ranking for subject {int(subject_id)}:")
+        ranking, ignored = load_per_class_accuracy(args.baseline_per_class)
+        print(f"[INFO] Baseline per-class ranking for subject {int(subject_id)} (support > 0 only):")
         print(json.dumps(ranking, ensure_ascii=False, indent=2))
+        if ignored:
+            print("[INFO] Ignored gestures with support <= 0:")
+            print(json.dumps(ignored, ensure_ascii=False, indent=2))
         gesture_ids = select_worst_gestures(
             ranking=ranking,
             worst_k=int(args.auto_select_worst_k),
