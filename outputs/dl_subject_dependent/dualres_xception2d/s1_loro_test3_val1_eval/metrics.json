@@ -1,0 +1,19 @@
+{
+  "split": "test",
+  "aggregation": "logits_mean",
+  "window": {
+    "loss": 0.8602382011825058,
+    "accuracy": 0.7106598984771574,
+    "macro_f1": 0.7070495401872066,
+    "num_windows": 1970
+  },
+  "repetition": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "num_repetitions": 10
+  },
+  "checkpoint": "outputs/dl_subject_dependent/dualres_xception2d/s1_loro_test3_val1/best.pt",
+  "subject": 1,
+  "best_epoch": 45,
+  "best_val_macro_f1": 0.597419920245897
+}

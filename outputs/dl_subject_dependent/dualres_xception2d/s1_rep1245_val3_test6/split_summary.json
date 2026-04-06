@@ -1,0 +1,217 @@
+{
+  "dataset": {
+    "num_windows": 11750,
+    "window_shape": [
+      80,
+      16
+    ],
+    "num_classes": 10,
+    "class_gesture_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "subjects": [
+      1
+    ],
+    "exercises": [
+      1,
+      2,
+      3
+    ],
+    "repetitions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "sampling_rate_hz": 200,
+    "window_size_samples": 80,
+    "step_size_samples": 10
+  },
+  "split_config": {
+    "split_mode": "repetition_holdout",
+    "train_reps": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "val_reps": [
+      3
+    ],
+    "test_reps": [
+      6
+    ]
+  },
+  "splits": {
+    "train": {
+      "num_windows": 7848,
+      "num_groups": 4,
+      "subjects": [
+        1
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 5
+        }
+      ],
+      "windows_per_subject": {
+        "1": 7848
+      },
+      "windows_per_gesture": {
+        "1": 871,
+        "2": 751,
+        "3": 773,
+        "4": 803,
+        "5": 756,
+        "6": 838,
+        "7": 820,
+        "8": 768,
+        "9": 714,
+        "10": 754
+      }
+    },
+    "val": {
+      "num_windows": 1970,
+      "num_groups": 1,
+      "subjects": [
+        1
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        3
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 3
+        }
+      ],
+      "windows_per_subject": {
+        "1": 1970
+      },
+      "windows_per_gesture": {
+        "1": 203,
+        "2": 184,
+        "3": 199,
+        "4": 194,
+        "5": 205,
+        "6": 216,
+        "7": 188,
+        "8": 223,
+        "9": 181,
+        "10": 177
+      }
+    },
+    "test": {
+      "num_windows": 1932,
+      "num_groups": 1,
+      "subjects": [
+        1
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        6
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 6
+        }
+      ],
+      "windows_per_subject": {
+        "1": 1932
+      },
+      "windows_per_gesture": {
+        "1": 232,
+        "2": 169,
+        "3": 177,
+        "4": 204,
+        "5": 201,
+        "6": 195,
+        "7": 189,
+        "8": 201,
+        "9": 182,
+        "10": 182
+      }
+    }
+  }
+}
