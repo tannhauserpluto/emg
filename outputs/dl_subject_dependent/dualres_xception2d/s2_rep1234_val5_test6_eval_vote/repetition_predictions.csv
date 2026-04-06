@@ -1,0 +1,11 @@
+subject,gesture,repetition,n_windows,y_true,y_pred,correct,prob_max,aggregation_method
+2,1,6,182,0,0,1,0.8021978021978022,majority_vote
+2,2,6,212,1,1,1,0.6839622641509434,majority_vote
+2,3,6,208,2,2,1,0.8173076923076923,majority_vote
+2,4,6,184,3,3,1,0.6304347826086957,majority_vote
+2,5,6,206,4,4,1,0.6019417475728155,majority_vote
+2,6,6,189,5,5,1,0.7354497354497355,majority_vote
+2,7,6,196,6,6,1,0.8571428571428571,majority_vote
+2,8,6,188,7,7,1,0.851063829787234,majority_vote
+2,9,6,180,8,8,1,0.8444444444444444,majority_vote
+2,10,6,159,9,9,1,0.7987421383647799,majority_vote

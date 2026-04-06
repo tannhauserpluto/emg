@@ -1,0 +1,19 @@
+{
+  "split": "test",
+  "aggregation": "majority_vote",
+  "window": {
+    "loss": 1.045674136628821,
+    "accuracy": 0.6538901601830663,
+    "macro_f1": 0.6519279579352283,
+    "num_windows": 1748
+  },
+  "repetition": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "num_repetitions": 10
+  },
+  "checkpoint": "outputs/dl_subject_dependent/dualres_xception2d/s3_rep1234_val5_test6/best.pt",
+  "subject": 3,
+  "best_epoch": 30,
+  "best_val_macro_f1": 0.7001088928398927
+}

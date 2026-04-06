@@ -1,0 +1,35 @@
+{
+  "num_windows": 120,
+  "window_shape": [
+    80,
+    16
+  ],
+  "subject_id": 9,
+  "selected_gestures": [
+    2,
+    6,
+    5
+  ],
+  "selected_repetitions": [
+    2,
+    5
+  ],
+  "gestures_present": [
+    2,
+    5,
+    6
+  ],
+  "repetitions_present": [
+    2,
+    5
+  ],
+  "source_indices_range": [
+    97767,
+    99516
+  ],
+  "windows_per_gesture": {
+    "2": 40,
+    "5": 40,
+    "6": 40
+  }
+}
