@@ -199,6 +199,32 @@ def assert_feature_alignment(window_data: Dict[str, np.ndarray], feature_data: D
         raise AssertionError("Feature dataset class_gesture_ids do not match the raw window dataset.")
 
 
+def _infer_sample_key(data: Dict[str, np.ndarray]) -> str:
+    if "x" in data:
+        return "x"
+    if "features" in data:
+        return "features"
+    raise KeyError("Dataset is missing both 'x' and 'features' sample keys.")
+
+
+def filter_dataset_by_subject(data: Dict[str, np.ndarray], subject_id: int) -> Dict[str, np.ndarray]:
+    subject_id = int(subject_id)
+    subject_mask = data["subject_id"].astype(np.int64) == subject_id
+    if not np.any(subject_mask):
+        raise ValueError(f"Subject {subject_id} is not present in the dataset.")
+
+    sample_key = _infer_sample_key(data)
+    num_samples = int(data[sample_key].shape[0])
+
+    filtered: Dict[str, np.ndarray] = {}
+    for key, value in data.items():
+        if isinstance(value, np.ndarray) and value.ndim > 0 and value.shape[0] == num_samples:
+            filtered[key] = value[subject_mask]
+        else:
+            filtered[key] = value
+    return filtered
+
+
 @dataclass
 class SplitIndices:
     train: np.ndarray

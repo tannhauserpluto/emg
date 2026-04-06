@@ -30,6 +30,10 @@ python train_dl.py --dataset data/ninapro_db5/windows/db5_s1-3_g1-10_win400_step
 
 python train_dl.py --dataset data/ninapro_db5/windows/db5_s1-3_g1-10_win400_step50.npz --model dualres_xception2d --pretrained-checkpoint artifacts/dl/db5_s1-3_win400_dualres_xception2d/best.pt --freeze-backbone --finetune-lr 1e-4 --split-mode repetition_holdout --train-reps 1,3,4 --val-reps 6 --test-reps 2,5 --run-dir artifacts/dl/db5_s1-3_win400_dualres_xception2d_finetune
 
+Subject-dependent repetition-holdout (S1-S3)
+--------------------------------------------
+python train_dl.py --dataset data/ninapro_db5/windows/db5_s1-3_g1-10_win400_step50.npz --model dualres_xception2d --subject 1 --split-mode repetition_holdout --train-reps 1,2,3,4 --val-reps 5 --test-reps 6 --augment-scale 0.02 --augment-noise 0.005 --augment-shift 1 --run-dir outputs/dl_subject_dependent/dualres_xception2d/s1_rep1234_val5_test6
+
 Larger S1-S10 repetition-holdout setup
 --------------------------------------
 python db5_windows.py --subjects 1-10 --gestures 1-10 --window-ms 400 --step-ms 50 --out data/ninapro_db5/windows/db5_s1-10_g1-10_win400_step50.npz
@@ -68,6 +72,7 @@ from dl_dataset import (
     assert_feature_alignment,
     assert_no_overlap,
     build_split_indices,
+    filter_dataset_by_subject,
     load_feature_dataset,
     load_window_dataset,
     make_split_summary,
@@ -157,6 +162,7 @@ def run_pre_training_integrity_checks(
     dataset_path: str,
     split_mode: str,
     split_config: Dict[str, object],
+    subject_filter: int | None = None,
 ) -> None:
     dataset_subjects = sorted(np.unique(dataset["subject_id"]).astype(np.int64).tolist())
     dataset_repetitions = sorted(np.unique(dataset["repetition_id"]).astype(np.int64).tolist())
@@ -168,12 +174,24 @@ def run_pre_training_integrity_checks(
     if subjects_from_path is not None:
         subjects_from_path = sorted({int(value) for value in subjects_from_path})
         print(f"[INFO] Subjects inferred from dataset filename: {subjects_from_path}")
-        if subjects_from_path != dataset_subjects:
+        if subject_filter is not None:
+            if int(subject_filter) not in subjects_from_path:
+                raise AssertionError(
+                    f"Requested subject {subject_filter} is not present in dataset file name subjects {subjects_from_path}"
+                )
+        elif subjects_from_path != dataset_subjects:
             raise AssertionError(
                 f"Dataset subject_id metadata {dataset_subjects} does not match dataset file name subjects {subjects_from_path}"
             )
     else:
         print("[INFO] No subject list could be inferred from dataset filename.")
+
+    if subject_filter is not None:
+        if dataset_subjects != [int(subject_filter)]:
+            raise AssertionError(
+                f"Filtered dataset subjects {dataset_subjects} do not match requested subject {int(subject_filter)}"
+            )
+        print(f"[INFO] Subject-dependent run for subject {int(subject_filter)}")
 
     if split_mode == "repetition_holdout":
         train_reps = {int(value) for value in split_config.get("train_reps", [])}
@@ -569,6 +587,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Train deep learning models on clean DB5 raw-window datasets.")
     parser.add_argument("--dataset", type=str, required=True, help="Path to the .npz dataset built by db5_windows.py")
     parser.add_argument("--feature-path", type=str, default="", help="Optional handcrafted feature dataset for fusion")
+    parser.add_argument("--subject", type=int, default=None, help="Optional subject ID for subject-dependent runs")
     parser.add_argument(
         "--model",
         type=str,
@@ -663,6 +682,14 @@ def main() -> None:
     if args.debug_shapes and args.model != "tcn":
         print(f"[INFO] Ignoring --debug-shapes for model {args.model}; it currently applies to model=tcn only.")
 
+    if args.subject is not None:
+        if args.split_mode == "subject_holdout":
+            raise ValueError("--subject is not compatible with split-mode subject_holdout.")
+        dataset = filter_dataset_by_subject(dataset, int(args.subject))
+        if feature_dataset is not None:
+            feature_dataset = filter_dataset_by_subject(feature_dataset, int(args.subject))
+        print(f"[INFO] Filtered dataset to subject {int(args.subject)}.")
+
     split_indices, split_config = build_split_indices(
         dataset,
         split_mode=args.split_mode,
@@ -678,6 +705,7 @@ def main() -> None:
         dataset_path=args.dataset,
         split_mode=args.split_mode,
         split_config=split_config,
+        subject_filter=args.subject,
     )
     assert_no_overlap(dataset, split_indices)
     print("[INFO] Split overlap check passed for subject_id/repetition_id groups.")
@@ -828,7 +856,8 @@ def main() -> None:
         f"tcn_hidden_channels={args.tcn_hidden_channels}, tcn_num_blocks={args.tcn_num_blocks}, "
         f"tcn_kernel_size={args.tcn_kernel_size}, debug_shapes={args.debug_shapes}, "
         f"feature_path={args.feature_path or 'None'}, pretrained_checkpoint={args.pretrained_checkpoint or 'None'}, "
-        f"freeze_backbone={args.freeze_backbone}, amp_enabled={amp_enabled}"
+        f"freeze_backbone={args.freeze_backbone}, subject={args.subject if args.subject is not None else 'None'}, "
+        f"amp_enabled={amp_enabled}"
     )
     if pretrained_checkpoint is not None:
         print(
