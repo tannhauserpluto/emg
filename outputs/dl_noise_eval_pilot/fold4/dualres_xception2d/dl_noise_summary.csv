@@ -1,0 +1,6 @@
+noise_type,noise_level,denoise_method,window_accuracy,window_macro_f1,repetition_accuracy,repetition_macro_f1,metrics_path
+clean,0.0,none,0.616719,0.613296,0.994444,0.994440,outputs/dl_noise_eval_pilot/fold4/dualres_xception2d/clean_lvl0_none/metrics_summary.json
+wgn,20.0,none,0.618631,0.615450,0.994444,0.994440,outputs/dl_noise_eval_pilot/fold4/dualres_xception2d/wgn_lvl20p0_none/metrics_summary.json
+wgn,10.0,none,0.597323,0.592278,0.988889,0.988712,outputs/dl_noise_eval_pilot/fold4/dualres_xception2d/wgn_lvl10p0_none/metrics_summary.json
+motion,0.3,none,0.588308,0.583422,0.994444,0.994440,outputs/dl_noise_eval_pilot/fold4/dualres_xception2d/motion_lvl0p3_none/metrics_summary.json
+drift,0.3,none,0.569868,0.565128,0.972222,0.971687,outputs/dl_noise_eval_pilot/fold4/dualres_xception2d/drift_lvl0p3_none/metrics_summary.json

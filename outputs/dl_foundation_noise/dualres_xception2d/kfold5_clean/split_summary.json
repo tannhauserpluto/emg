@@ -1,0 +1,426 @@
+{
+  "dataset": {
+    "num_windows": 36607,
+    "window_shape": [
+      40,
+      16
+    ],
+    "num_classes": 10,
+    "class_gesture_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "subjects": [
+      1,
+      2,
+      3
+    ],
+    "exercises": [
+      1,
+      2,
+      3
+    ],
+    "repetitions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "sampling_rate_hz": 200,
+    "window_size_samples": 40,
+    "step_size_samples": 10
+  },
+  "split_config": {
+    "split_mode": "kfold",
+    "test_fold": 5,
+    "val_fold": 1,
+    "num_folds": 5
+  },
+  "splits": {
+    "train": {
+      "num_windows": 21964,
+      "num_groups": 18,
+      "subjects": [
+        1,
+        2,
+        3
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 6
+        }
+      ],
+      "windows_per_subject": {
+        "1": 7421,
+        "2": 7556,
+        "3": 6987
+      },
+      "windows_per_gesture": {
+        "1": 2371,
+        "2": 2078,
+        "3": 2298,
+        "4": 2229,
+        "5": 2204,
+        "6": 2289,
+        "7": 2263,
+        "8": 2121,
+        "9": 2062,
+        "10": 2049
+      }
+    },
+    "val": {
+      "num_windows": 7322,
+      "num_groups": 18,
+      "subjects": [
+        1,
+        2,
+        3
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 6
+        }
+      ],
+      "windows_per_subject": {
+        "1": 2508,
+        "2": 2480,
+        "3": 2334
+      },
+      "windows_per_gesture": {
+        "1": 791,
+        "2": 692,
+        "3": 766,
+        "4": 743,
+        "5": 735,
+        "6": 763,
+        "7": 755,
+        "8": 706,
+        "9": 688,
+        "10": 683
+      }
+    },
+    "test": {
+      "num_windows": 7321,
+      "num_groups": 18,
+      "subjects": [
+        1,
+        2,
+        3
+      ],
+      "exercises": [
+        1,
+        2,
+        3
+      ],
+      "gestures": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "repetitions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "group_pairs": [
+        {
+          "subject_id": 1,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 1,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 2,
+          "repetition_id": 6
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 1
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 2
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 3
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 4
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 5
+        },
+        {
+          "subject_id": 3,
+          "repetition_id": 6
+        }
+      ],
+      "windows_per_subject": {
+        "1": 2541,
+        "2": 2552,
+        "3": 2228
+      },
+      "windows_per_gesture": {
+        "1": 790,
+        "2": 692,
+        "3": 766,
+        "4": 743,
+        "5": 735,
+        "6": 763,
+        "7": 755,
+        "8": 707,
+        "9": 687,
+        "10": 683
+      }
+    }
+  }
+}

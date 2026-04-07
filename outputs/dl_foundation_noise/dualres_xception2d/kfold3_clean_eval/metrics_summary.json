@@ -1,0 +1,18 @@
+{
+  "split": "test",
+  "aggregation": "logits_mean",
+  "window": {
+    "loss": 1.2444697901486472,
+    "accuracy": 0.6083868323999454,
+    "macro_f1": 0.6054390236821369,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.9944444444444445,
+    "macro_f1": 0.9944401544401543,
+    "num_repetitions": 180
+  },
+  "checkpoint": "outputs/dl_foundation_noise/dualres_xception2d/kfold3_clean/best.pt",
+  "best_epoch": 50,
+  "best_val_macro_f1": 0.6084605295939756
+}
