@@ -1,0 +1,16 @@
+{
+  "noise_type": "hum",
+  "noise_level": 0.3,
+  "denoise_method": "wavelet",
+  "window": {
+    "loss": 2.1966927669328706,
+    "accuracy": 0.22114465236989483,
+    "macro_f1": 0.20308696165074563,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.37222222222222223,
+    "macro_f1": 0.34702456123996434,
+    "num_repetitions": 180
+  }
+}

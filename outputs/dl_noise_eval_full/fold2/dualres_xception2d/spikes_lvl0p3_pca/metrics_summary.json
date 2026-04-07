@@ -1,0 +1,16 @@
+{
+  "noise_type": "spikes",
+  "noise_level": 0.3,
+  "denoise_method": "pca",
+  "window": {
+    "loss": 1.8345343198192734,
+    "accuracy": 0.3587817536192297,
+    "macro_f1": 0.34614161916775366,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.6333333333333333,
+    "macro_f1": 0.6153172356794923,
+    "num_repetitions": 180
+  }
+}

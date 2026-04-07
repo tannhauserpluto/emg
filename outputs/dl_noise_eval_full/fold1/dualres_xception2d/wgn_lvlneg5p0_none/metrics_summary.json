@@ -1,0 +1,16 @@
+{
+  "noise_type": "wgn",
+  "noise_level": -5.0,
+  "denoise_method": "none",
+  "window": {
+    "loss": 3.2888160821552064,
+    "accuracy": 0.2114176454520623,
+    "macro_f1": 0.19272801395590786,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.26666666666666666,
+    "macro_f1": 0.20295838828276,
+    "num_repetitions": 180
+  }
+}

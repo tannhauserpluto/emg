@@ -1,0 +1,16 @@
+{
+  "noise_type": "hum",
+  "noise_level": 1.0,
+  "denoise_method": "pca",
+  "window": {
+    "loss": 1.6533599135296346,
+    "accuracy": 0.4366889769157219,
+    "macro_f1": 0.42095316701965163,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.8,
+    "macro_f1": 0.7802117689396488,
+    "num_repetitions": 180
+  }
+}

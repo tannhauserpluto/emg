@@ -1,0 +1,16 @@
+{
+  "noise_type": "motion",
+  "noise_level": 0.6,
+  "denoise_method": "none",
+  "window": {
+    "loss": 1.7319045647087399,
+    "accuracy": 0.38691614313029227,
+    "macro_f1": 0.3839766304091879,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.6944444444444444,
+    "macro_f1": 0.6950383446340893,
+    "num_repetitions": 180
+  }
+}

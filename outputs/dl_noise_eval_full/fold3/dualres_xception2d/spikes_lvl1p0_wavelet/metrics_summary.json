@@ -1,0 +1,16 @@
+{
+  "noise_type": "spikes",
+  "noise_level": 1.0,
+  "denoise_method": "wavelet",
+  "window": {
+    "loss": 2.141008265893522,
+    "accuracy": 0.2741428766561945,
+    "macro_f1": 0.2684352452736062,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.49444444444444446,
+    "macro_f1": 0.47965622638653127,
+    "num_repetitions": 180
+  }
+}

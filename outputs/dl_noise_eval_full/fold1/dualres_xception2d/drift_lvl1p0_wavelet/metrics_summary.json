@@ -1,0 +1,16 @@
+{
+  "noise_type": "drift",
+  "noise_level": 1.0,
+  "denoise_method": "wavelet",
+  "window": {
+    "loss": 4.745796618240839,
+    "accuracy": 0.1637530729308932,
+    "macro_f1": 0.1172875093810242,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.17777777777777778,
+    "macro_f1": 0.09543335627837271,
+    "num_repetitions": 180
+  }
+}

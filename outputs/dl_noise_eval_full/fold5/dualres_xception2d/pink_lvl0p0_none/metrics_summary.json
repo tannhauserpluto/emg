@@ -1,0 +1,16 @@
+{
+  "noise_type": "pink",
+  "noise_level": 0.0,
+  "denoise_method": "none",
+  "window": {
+    "loss": 2.42734831612287,
+    "accuracy": 0.2619860674771206,
+    "macro_f1": 0.23578696301771424,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.3111111111111111,
+    "macro_f1": 0.26252360288377646,
+    "num_repetitions": 180
+  }
+}

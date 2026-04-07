@@ -1,0 +1,16 @@
+{
+  "noise_type": "hum",
+  "noise_level": 1.0,
+  "denoise_method": "kalman",
+  "window": {
+    "loss": 2.1359072469095493,
+    "accuracy": 0.2390057361376673,
+    "macro_f1": 0.21474509100516076,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.35,
+    "macro_f1": 0.3021259938476567,
+    "num_repetitions": 180
+  }
+}

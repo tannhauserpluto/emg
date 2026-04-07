@@ -1,0 +1,16 @@
+{
+  "noise_type": "drift",
+  "noise_level": 0.3,
+  "denoise_method": "notch",
+  "window": {
+    "loss": 1.4492786560544417,
+    "accuracy": 0.49453701174542475,
+    "macro_f1": 0.5007084570122419,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.9055555555555556,
+    "macro_f1": 0.9078726841076783,
+    "num_repetitions": 180
+  }
+}

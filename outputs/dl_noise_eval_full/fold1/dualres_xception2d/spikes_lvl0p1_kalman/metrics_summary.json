@@ -1,0 +1,16 @@
+{
+  "noise_type": "spikes",
+  "noise_level": 0.1,
+  "denoise_method": "kalman",
+  "window": {
+    "loss": 2.1595002516994253,
+    "accuracy": 0.22275334608030592,
+    "macro_f1": 0.20277975877799292,
+    "num_windows": 7322
+  },
+  "repetition": {
+    "accuracy": 0.37222222222222223,
+    "macro_f1": 0.32810900043982755,
+    "num_repetitions": 180
+  }
+}

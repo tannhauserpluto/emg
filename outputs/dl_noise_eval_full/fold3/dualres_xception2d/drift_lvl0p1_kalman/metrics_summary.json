@@ -1,0 +1,16 @@
+{
+  "noise_type": "drift",
+  "noise_level": 0.1,
+  "denoise_method": "kalman",
+  "window": {
+    "loss": 2.1301737907333074,
+    "accuracy": 0.25611255292992763,
+    "macro_f1": 0.23223600176521847,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.4222222222222222,
+    "macro_f1": 0.3872137513866997,
+    "num_repetitions": 180
+  }
+}

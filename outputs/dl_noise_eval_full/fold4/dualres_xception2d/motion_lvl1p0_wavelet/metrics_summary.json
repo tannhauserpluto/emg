@@ -1,0 +1,16 @@
+{
+  "noise_type": "motion",
+  "noise_level": 1.0,
+  "denoise_method": "wavelet",
+  "window": {
+    "loss": 2.1567954379439827,
+    "accuracy": 0.25583936620680237,
+    "macro_f1": 0.2403606588841171,
+    "num_windows": 7321
+  },
+  "repetition": {
+    "accuracy": 0.34444444444444444,
+    "macro_f1": 0.31569957266363036,
+    "num_repetitions": 180
+  }
+}
