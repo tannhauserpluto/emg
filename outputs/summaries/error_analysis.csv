@@ -1,0 +1,4 @@
+case_id,scope,subject,test_fold,gesture,repetition,y_true,y_pred,prob_max,evidence_path,notes
+err_1,repetition-level,1,1,2,1,1,0,0.39203348755836487,outputs/dl_subject_dependent/dualres_xception2d/s1_loro_test1_val2_eval/repetition_predictions.csv,LORO test1 repetition error
+err_2,repetition-level,1,1,8,1,7,8,0.3277975916862488,outputs/dl_subject_dependent/dualres_xception2d/s1_loro_test1_val2_eval/repetition_predictions.csv,LORO test1 repetition error
+err_3,repetition-level,3,1,1,1,0,2,0.382758766412735,outputs/dl_subject_dependent/dualres_xception2d/s3_loro_test1_val2_eval/repetition_predictions.csv,LORO test1 repetition error

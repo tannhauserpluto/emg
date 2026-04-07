@@ -27,6 +27,7 @@ from dl_dataset import (
     assert_no_overlap,
     build_split_indices,
     filter_dataset_by_subject,
+    load_fold_ids,
     load_feature_dataset,
     load_window_dataset,
     make_split_summary,
@@ -226,7 +227,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--split-mode",
         type=str,
-        choices=["repetition_holdout", "subject_holdout"],
+        choices=["repetition_holdout", "subject_holdout", "kfold"],
         default="",
     )
     parser.add_argument("--train-reps", type=str, default="")
@@ -235,6 +236,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--train-subjects", type=str, default="")
     parser.add_argument("--val-subjects", type=str, default="")
     parser.add_argument("--test-subjects", type=str, default="")
+    parser.add_argument("--fold-file", type=str, default="")
+    parser.add_argument("--test-fold", type=int, default=None)
+    parser.add_argument("--val-fold", type=int, default=None)
     parser.add_argument(
         "--aggregation",
         type=str,
@@ -282,6 +286,10 @@ def main() -> None:
             feature_matrix = feature_dataset["features"]
         print(f"[INFO] Filtered dataset to subject {int(args.subject)}.")
 
+    fold_ids = None
+    if split_mode == "kfold":
+        fold_ids = load_fold_ids(args.fold_file, int(dataset["x"].shape[0]))
+
     split_indices, split_config = build_split_indices(
         dataset,
         split_mode=split_mode,
@@ -291,8 +299,11 @@ def main() -> None:
         train_subjects=parse_int_list(args.train_subjects) or checkpoint_split_config.get("train_subjects", []),
         val_subjects=parse_int_list(args.val_subjects) or checkpoint_split_config.get("val_subjects", []),
         test_subjects=parse_int_list(args.test_subjects) or checkpoint_split_config.get("test_subjects", []),
+        fold_ids=fold_ids,
+        test_fold=args.test_fold,
+        val_fold=args.val_fold,
     )
-    assert_no_overlap(dataset, split_indices)
+    assert_no_overlap(dataset, split_indices, check_group_overlap=split_mode != "kfold")
 
     split_summary = make_split_summary(dataset, split_indices, split_config)
     print_split_summary(split_summary)

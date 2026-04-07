@@ -1,0 +1,2 @@
+noise_type,noise_level,denoise_method,window_accuracy,window_macro_f1,repetition_accuracy,repetition_macro_f1,metrics_path
+wgn,20.0,none,0.145452,0.105239,0.122222,0.050224,outputs/dl_noise_eval\dualres_xception2d\wgn_lvl20p0_none\metrics_summary.json

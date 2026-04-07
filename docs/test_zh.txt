@@ -1,0 +1,2 @@
+NOTE: encoding probe file created during setup.
+建议后续整理时删除或合并到说明文档中。

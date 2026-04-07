@@ -1,0 +1,4 @@
+experiment_id,category,dataset,setting,model_or_method,key_findings,evidence_paths,source_metrics_file,source_config_file,status,notes
+supp_cross_subject_dl,supplementary,db5,S1-10 cross-subject,dualres_xception2d,difficult setting; lower than subject-dependent,artifacts/dl/db5_s1-10_win400_*; configs/dl_db5_s1_s10_rep_holdout_win400_dualres_xception2d.json,,configs/dl_db5_s1_s10_rep_holdout_win400_dualres_xception2d.json,active,cross-subject difficulty reference
+supp_calibration_subject10,supplementary,db5,subject10 calibration,dualres_xception2d,effective on subject 10,data/ninapro_db5/calibration/*subject10*; calibrate_dl.py,,,active,calibration positive case
+supp_calibration_subject9,supplementary,db5,subject9 calibration,dualres_xception2d,limited gains on subject 9,data/ninapro_db5/calibration/*subject9*; calibrate_dl.py,,,active,calibration weak-gain case

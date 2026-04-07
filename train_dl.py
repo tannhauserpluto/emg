@@ -73,6 +73,7 @@ from dl_dataset import (
     assert_no_overlap,
     build_split_indices,
     filter_dataset_by_subject,
+    load_fold_ids,
     load_feature_dataset,
     load_window_dataset,
     make_split_summary,
@@ -214,6 +215,15 @@ def run_pre_training_integrity_checks(
             raise AssertionError(
                 f"Requested CLI subjects {requested_subjects} do not match dataset subject metadata {dataset_subjects}"
             )
+    if split_mode == "kfold":
+        test_fold = split_config.get("test_fold")
+        val_fold = split_config.get("val_fold")
+        num_folds = split_config.get("num_folds")
+        print(f"[INFO] Requested kfold split: test_fold={test_fold}, val_fold={val_fold}, num_folds={num_folds}")
+        if test_fold is None or val_fold is None:
+            raise AssertionError("kfold split config must include test_fold and val_fold.")
+        if int(test_fold) == int(val_fold):
+            raise AssertionError("kfold split config has overlapping test_fold and val_fold.")
 
 
 def parse_optional_int_list(text: str) -> list[int] | None:
@@ -605,7 +615,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--split-mode",
         type=str,
-        choices=["repetition_holdout", "subject_holdout"],
+        choices=["repetition_holdout", "subject_holdout", "kfold"],
         default="repetition_holdout",
     )
     parser.add_argument("--train-reps", type=str, default="1,3,4")
@@ -614,6 +624,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--train-subjects", type=str, default="1-7")
     parser.add_argument("--val-subjects", type=str, default="8")
     parser.add_argument("--test-subjects", type=str, default="9-10")
+    parser.add_argument("--fold-file", type=str, default="")
+    parser.add_argument("--test-fold", type=int, default=None)
+    parser.add_argument("--val-fold", type=int, default=None)
     parser.add_argument("--num-classes", type=int, default=None)
     parser.add_argument("--num-channels", type=int, default=None)
     parser.add_argument("--batch-size", type=int, default=128)
@@ -690,6 +703,10 @@ def main() -> None:
             feature_dataset = filter_dataset_by_subject(feature_dataset, int(args.subject))
         print(f"[INFO] Filtered dataset to subject {int(args.subject)}.")
 
+    fold_ids = None
+    if args.split_mode == "kfold":
+        fold_ids = load_fold_ids(args.fold_file, int(dataset["x"].shape[0]))
+
     split_indices, split_config = build_split_indices(
         dataset,
         split_mode=args.split_mode,
@@ -699,6 +716,9 @@ def main() -> None:
         train_subjects=parse_int_list(args.train_subjects),
         val_subjects=parse_int_list(args.val_subjects),
         test_subjects=parse_int_list(args.test_subjects),
+        fold_ids=fold_ids,
+        test_fold=args.test_fold,
+        val_fold=args.val_fold,
     )
     run_pre_training_integrity_checks(
         dataset=dataset,
@@ -707,8 +727,11 @@ def main() -> None:
         split_config=split_config,
         subject_filter=args.subject,
     )
-    assert_no_overlap(dataset, split_indices)
-    print("[INFO] Split overlap check passed for subject_id/repetition_id groups.")
+    assert_no_overlap(dataset, split_indices, check_group_overlap=args.split_mode != "kfold")
+    if args.split_mode == "kfold":
+        print("[INFO] Split overlap check passed for kfold indices.")
+    else:
+        print("[INFO] Split overlap check passed for subject_id/repetition_id groups.")
 
     split_summary = make_split_summary(dataset, split_indices, split_config)
     print_split_summary(split_summary)

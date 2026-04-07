@@ -173,6 +173,30 @@ def load_feature_dataset(feature_path: str) -> Dict[str, np.ndarray]:
     return data
 
 
+def load_fold_ids(fold_path: str, num_samples: int) -> np.ndarray:
+    if not fold_path:
+        raise ValueError("fold_path is required when using kfold split mode.")
+
+    fold_path = str(fold_path)
+    if fold_path.lower().endswith(".npy"):
+        fold_ids = np.load(fold_path)
+    else:
+        loaded = np.load(fold_path, allow_pickle=False)
+        if "fold_id" in loaded:
+            fold_ids = loaded["fold_id"]
+        elif "fold_ids" in loaded:
+            fold_ids = loaded["fold_ids"]
+        else:
+            raise KeyError(f"Fold file {fold_path} is missing 'fold_id' or 'fold_ids'.")
+
+    fold_ids = np.asarray(fold_ids, dtype=np.int64)
+    if int(fold_ids.shape[0]) != int(num_samples):
+        raise ValueError(
+            f"Fold file {fold_path} has {fold_ids.shape[0]} entries, expected {num_samples}."
+        )
+    return fold_ids
+
+
 def assert_feature_alignment(window_data: Dict[str, np.ndarray], feature_data: Dict[str, np.ndarray]) -> None:
     metadata_keys = (
         "y",
@@ -424,6 +448,9 @@ def build_split_indices(
     train_subjects: Sequence[int] | None = None,
     val_subjects: Sequence[int] | None = None,
     test_subjects: Sequence[int] | None = None,
+    fold_ids: Sequence[int] | None = None,
+    test_fold: int | None = None,
+    val_fold: int | None = None,
 ) -> tuple[SplitIndices, Dict[str, object]]:
     split_mode = str(split_mode)
 
@@ -479,6 +506,44 @@ def build_split_indices(
             "val_subjects": [int(value) for value in val_subjects],
             "test_subjects": [int(value) for value in test_subjects],
         }
+    elif split_mode == "kfold":
+        if fold_ids is None:
+            raise ValueError("fold_ids must be provided for split_mode='kfold'.")
+        fold_ids = np.asarray(fold_ids, dtype=np.int64)
+        unique_folds = sorted(int(value) for value in np.unique(fold_ids).tolist())
+        if not unique_folds:
+            raise ValueError("Fold assignments are empty.")
+
+        if test_fold is None:
+            raise ValueError("test_fold is required for split_mode='kfold'.")
+        test_fold = int(test_fold)
+        if test_fold not in unique_folds:
+            raise ValueError(f"test_fold={test_fold} is not present in fold assignments {unique_folds}.")
+
+        if val_fold is None:
+            if len(unique_folds) < 2:
+                raise ValueError("val_fold is required when only one fold exists.")
+            next_index = (unique_folds.index(test_fold) + 1) % len(unique_folds)
+            val_fold = int(unique_folds[next_index])
+        else:
+            val_fold = int(val_fold)
+
+        if val_fold not in unique_folds:
+            raise ValueError(f"val_fold={val_fold} is not present in fold assignments {unique_folds}.")
+        if val_fold == test_fold:
+            raise ValueError("val_fold must be different from test_fold.")
+
+        train_mask = ~(np.isin(fold_ids, [val_fold, test_fold]))
+        train_indices = np.flatnonzero(train_mask)
+        val_indices = np.flatnonzero(fold_ids == val_fold)
+        test_indices = np.flatnonzero(fold_ids == test_fold)
+
+        split_config = {
+            "split_mode": split_mode,
+            "test_fold": int(test_fold),
+            "val_fold": int(val_fold),
+            "num_folds": int(len(unique_folds)),
+        }
     else:
         raise ValueError(f"Unknown split mode: {split_mode}")
 
@@ -499,7 +564,11 @@ def build_split_indices(
     return split_indices, split_config
 
 
-def assert_no_overlap(data: Dict[str, np.ndarray], split_indices: SplitIndices) -> None:
+def assert_no_overlap(
+    data: Dict[str, np.ndarray],
+    split_indices: SplitIndices,
+    check_group_overlap: bool = True,
+) -> None:
     index_sets = {
         "train": set(int(value) for value in split_indices.train.tolist()),
         "val": set(int(value) for value in split_indices.val.tolist()),
@@ -513,28 +582,29 @@ def assert_no_overlap(data: Dict[str, np.ndarray], split_indices: SplitIndices) 
             if overlap:
                 raise AssertionError(f"Window overlap detected between {left_name} and {right_name}: {sorted(overlap)[:5]}")
 
-    group_sets = {
-        split_name: {
-            (int(subject_id), int(repetition_id))
-            for subject_id, repetition_id in zip(
-                data["subject_id"][indices].tolist(),
-                data["repetition_id"][indices].tolist(),
-            )
-        }
-        for split_name, indices in {
-            "train": split_indices.train,
-            "val": split_indices.val,
-            "test": split_indices.test,
-        }.items()
-    }
-
-    for left_index, left_name in enumerate(names):
-        for right_name in names[left_index + 1 :]:
-            overlap = group_sets[left_name] & group_sets[right_name]
-            if overlap:
-                raise AssertionError(
-                    f"Leakage detected between {left_name} and {right_name} on subject_id/repetition_id groups: {sorted(overlap)[:5]}"
+    if check_group_overlap:
+        group_sets = {
+            split_name: {
+                (int(subject_id), int(repetition_id))
+                for subject_id, repetition_id in zip(
+                    data["subject_id"][indices].tolist(),
+                    data["repetition_id"][indices].tolist(),
                 )
+            }
+            for split_name, indices in {
+                "train": split_indices.train,
+                "val": split_indices.val,
+                "test": split_indices.test,
+            }.items()
+        }
+
+        for left_index, left_name in enumerate(names):
+            for right_name in names[left_index + 1 :]:
+                overlap = group_sets[left_name] & group_sets[right_name]
+                if overlap:
+                    raise AssertionError(
+                        f"Leakage detected between {left_name} and {right_name} on subject_id/repetition_id groups: {sorted(overlap)[:5]}"
+                    )
 
 
 def _split_detail(data: Dict[str, np.ndarray], indices: np.ndarray) -> Dict[str, object]:

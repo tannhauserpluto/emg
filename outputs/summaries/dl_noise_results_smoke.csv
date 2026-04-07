@@ -1,0 +1,2 @@
+experiment_id,category,method_family,model,dataset,subject_setting,split_mode,evaluation_level,noise_type,noise_level,denoise_method,accuracy,macro_f1,std_accuracy,std_macro_f1,source_metrics_file,notes
+dl_noise_wgn_lvl20p0_none,noise_robustness,DL,dualres_xception2d,db5,subject-dependent (S1-3),kfold,window,wgn,20.0,none,0.145452,0.105239,,,outputs/dl_noise_eval\dualres_xception2d\wgn_lvl20p0_none\metrics_summary.json,DL noise eval (window-level)
