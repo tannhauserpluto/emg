@@ -1,0 +1,3 @@
+experiment_id,model,dataset,subject_setting,split_mode,evaluation_level,aggregation,accuracy,macro_f1,source_path,notes
+cross_subject_cnn_lstm_s1-10_win400_rep_holdout,cnn_lstm,db5_s1-10_g1-10_win400_step50,cross-subject train1-7/val8/test9-10,repetition_holdout (subject split),window,none,0.406443,0.402281,artifacts/dl/db5_s1-10_win400_cnn_lstm/metrics_summary.json,DB5 S1-10 cross-subject baseline
+cross_subject_xception2d_s1-10_win400_rep_holdout,xception2d,db5_s1-10_g1-10_win400_step50,cross-subject train1-7/val8/test9-10,repetition_holdout (subject split),window,none,0.509469,0.510178,artifacts/dl/db5_s1-10_win400_xception2d/metrics_summary.json,DB5 S1-10 cross-subject baseline
